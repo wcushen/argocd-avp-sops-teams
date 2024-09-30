@@ -1,0 +1,20 @@
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  creationTimestamp: null  
+  labels:
+    app: welcome
+    app.kubernetes.io/instance: welcome
+  name: welcome
+spec:
+  tags:
+  - annotations:
+      openshift.io/imported-from: eformat/welcome
+    from:
+      kind: DockerImage
+      name: quay.io/eformat/welcome:latest
+    importPolicy: {}
+    name: latest

@@ -1,0 +1,23 @@
+---
+namespace: a-team
+
+resources:
+  - ../../base
+  - project.yaml
+
+patches:
+  - target:
+      kind: ArgoCD
+      name: argocd
+    patch: |-
+      apiVersion: argoproj.io/v1beta1
+      kind: ArgoCD
+      metadata:
+        name: argocd
+      spec:
+        applicationInstanceLabelKey: rht-gitops.com/argocd-a-team
+        rbac:
+          defaultPolicy: "role:readonly"
+          policy: |
+            g, a-team, role:admin
+          scopes: '[groups]'

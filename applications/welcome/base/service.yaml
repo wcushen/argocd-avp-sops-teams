@@ -1,0 +1,21 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  creationTimestamp: null
+  labels:
+    app: welcome
+    app.kubernetes.io/instance: welcome
+  name: welcome
+spec:
+  ports:
+  - name: 8080-tcp
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: welcome
+  sessionAffinity: None
+  type: ClusterIP

@@ -1,0 +1,442 @@
+---
+apiVersion: user.openshift.io/v1
+kind: Group
+metadata:
+  name: admin
+users:
+- admin
+---
+apiVersion: user.openshift.io/v1
+kind: Group
+metadata:
+  name: a-team
+users:
+- a-user
+---
+apiVersion: user.openshift.io/v1
+kind: Group
+metadata:
+  name: b-team
+users:
+- b-user
+---
+apiVersion: user.openshift.io/v1
+kind: Group
+metadata:
+  name: c-team
+users:
+- c-user
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: vault
+  namespace: openshift-gitops
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: vault-edit
+subjects:
+  - kind: ServiceAccount
+    name: vault
+    namespace: openshift-gitops
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: edit
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: vault-system-auth-delegator
+subjects:
+  - kind: ServiceAccount
+    name: vault
+    namespace: openshift-gitops
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: 'system:auth-delegator'
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: argocd-vault-plugins
+  namespace: openshift-gitops
+data:
+  sops-age-plugin.yaml: |
+    apiVersion: argoproj.io/v1alpha1
+    kind: ConfigManagementPlugin
+    metadata:
+      name: sops-age-plugin
+    spec:
+      generate:
+        command: ["sh", "-c"]
+        args: ['AVP_TYPE=sops argocd-vault-plugin generate ./']
+  sops-age-helm-plugin.yaml: |
+    apiVersion: argoproj.io/v1alpha1
+    kind: ConfigManagementPlugin
+    metadata:
+      name: sops-age-helm-plugin
+    spec:
+      init:
+        command: [sh, -c]
+        args: ["helm dependency build"]
+      generate:
+        command: ["bash", "-c"]
+        args: ['helm template "$ARGOCD_APP_NAME" -n "$ARGOCD_APP_NAMESPACE" -f <(echo "$ARGOCD_ENV_HELM_VALUES") . | AVP_TYPE=sops argocd-vault-plugin generate -']
+  sops-age-kustomize-plugin.yaml: |
+    apiVersion: argoproj.io/v1alpha1
+    kind: ConfigManagementPlugin
+    metadata:
+      name: sops-age-kustomize-plugin
+    spec:
+      generate:
+        command: ["sh", "-c"]
+        args: ["kustomize --enable-alpha-plugins --enable-helm build . | AVP_TYPE=sops argocd-vault-plugin generate -"]
+  kustomize-novault-plugin.yaml: |
+    apiVersion: argoproj.io/v1alpha1
+    kind: ConfigManagementPlugin
+    metadata:
+      name: kustomize-novault-plugin
+    spec:
+      generate:
+        command: ["sh", "-c"]
+        args: ["kustomize --enable-alpha-plugins --enable-helm build ."]
+  helm-novault-plugin.yaml: |
+    apiVersion: argoproj.io/v1alpha1
+    kind: ConfigManagementPlugin
+    metadata:
+      name: helm-novault-plugin
+    spec:
+      init:
+        command: [sh, -c]
+        args: ["helm dependency build"]
+      generate:
+        command: ["bash", "-c"]
+        args: ['helm template "$ARGOCD_APP_NAME" -n "$ARGOCD_APP_NAMESPACE" -f <(echo "$ARGOCD_ENV_HELM_VALUES") .']
+---
+apiVersion: argoproj.io/v1beta1
+kind: ArgoCD
+metadata:
+  name: global-policy
+  namespace: openshift-gitops
+spec:
+  server:
+    autoscale:
+      enabled: false
+    grpc:
+      ingress:
+        enabled: false
+    ingress:
+      enabled: false
+    route:
+      enabled: true
+      tls:
+        termination: reencrypt
+    service:
+      type: ''
+  grafana:
+    enabled: false
+    ingress:
+      enabled: false
+    route:
+      enabled: false
+  monitoring:
+    enabled: false
+  notifications:
+    enabled: true
+  prometheus:
+    enabled: false
+    ingress:
+      enabled: false
+    route:
+      enabled: false
+  initialSSHKnownHosts: {}
+  kustomizeBuildOptions: --enable-alpha-plugins
+  sso:
+    dex:
+      openShiftOAuth: true
+    provider: dex
+  statusBadgeEnabled: true
+  applicationInstanceLabelKey: rht-gitops.com/global-policy
+  applicationSet:
+    webhookServer:
+      ingress:
+        enabled: false
+      route:
+        enabled: false
+  rbac:
+    defaultPolicy: "role:readonly"
+    policy: |
+      g, admin, role:admin
+    scopes: '[groups]'
+  repo:
+    env:
+      - name: POLICY_GEN_ENABLE_HELM
+        value: "true"
+    initContainers:
+      - command:
+          - cp
+          - '-n'
+          - /usr/local/bin/argocd
+          - /var/run/argocd/argocd-cmp-server
+        image: 'quay.io/argoproj/argocd:v2.12.3'
+        imagePullPolicy: IfNotPresent
+        name: copy-cmp-server
+        resources: {}
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+          - mountPath: /var/run/argocd
+            name: var-files
+      - args:
+          - '-c'
+          - cp /etc/kustomize/plugin/policy.open-cluster-management.io/v1/policygenerator/PolicyGenerator /policy-generator/PolicyGenerator
+        command:
+          - /bin/bash
+        image: 'registry.redhat.io/rhacm2/multicluster-operators-subscription-rhel9:v2.10'
+        imagePullPolicy: IfNotPresent
+        name: policy-generator-install
+        resources: {}
+        volumeMounts:
+          - mountPath: /policy-generator
+            name: policy-generator
+    mountsatoken: true
+    serviceaccount: vault
+    sidecarContainers:
+      - command:
+          - /var/run/argocd/argocd-cmp-server
+        env:
+          - name: SOPS_AGE_KEY_FILE
+            value: /var/run/secrets/age-key.txt
+        image: 'quay.io/eformat/argocd-vault-sidecar:2.12.3'
+        name: sops-age-plugin
+        resources: {}
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
+        volumeMounts:
+          - mountPath: /var/run/argocd
+            name: var-files
+          - mountPath: /home/argocd/cmp-server/config
+            name: sops-age-plugin
+          - mountPath: /home/argocd/cmp-server/plugins
+            name: plugins
+          - mountPath: /tmp
+            name: cmp-tmp-sops-age
+          - mountPath: /var/run/secrets
+            name: sops-age-key
+            readOnly: true
+      - command:
+          - /var/run/argocd/argocd-cmp-server
+        image: 'quay.io/eformat/argocd-vault-sidecar:2.12.3'
+        imagePullPolicy: Always
+        name: sops-age-helm-plugin
+        resources: {}
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
+        volumeMounts:
+          - mountPath: /var/run/argocd
+            name: var-files
+          - mountPath: /home/argocd/cmp-server/config
+            name: sops-age-helm-plugin
+          - mountPath: /home/argocd/cmp-server/plugins
+            name: plugins
+          - mountPath: /tmp
+            name: cmp-tmp-sops-age-helm
+      - command:
+          - /var/run/argocd/argocd-cmp-server
+        env:
+          - name: KUSTOMIZE_PLUGIN_HOME
+            value: /etc/kustomize/plugin
+          - name: POLICY_GEN_ENABLE_HELM
+            value: "true"
+        image: 'quay.io/eformat/argocd-vault-sidecar:2.12.3'
+        imagePullPolicy: Always
+        name: sops-age-vault-plugin-kustomize
+        resources: {}
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
+        volumeMounts:
+          - mountPath: /var/run/argocd
+            name: var-files
+          - mountPath: /home/argocd/cmp-server/config
+            name: sops-age-kustomize-plugin
+          - mountPath: /home/argocd/cmp-server/plugins
+            name: plugins
+          - mountPath: /tmp
+            name: cmp-tmp-sops-age-kustomize
+          - mountPath: >-
+              /etc/kustomize/plugin/policy.open-cluster-management.io/v1/policygenerator
+            name: policy-generator
+      - command:
+          - /var/run/argocd/argocd-cmp-server
+        env:
+          - name: KUSTOMIZE_PLUGIN_HOME
+            value: /etc/kustomize/plugin
+          - name: POLICY_GEN_ENABLE_HELM
+            value: "true"
+        image: 'quay.io/eformat/argocd-vault-sidecar:2.12.3'
+        imagePullPolicy: Always
+        name: kustomize-novault-plugin
+        resources: {}
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
+        volumeMounts:
+          - mountPath: /var/run/argocd
+            name: var-files
+          - mountPath: /home/argocd/cmp-server/config
+            name: kustomize-novault-plugin
+          - mountPath: /home/argocd/cmp-server/plugins
+            name: plugins
+          - mountPath: /tmp
+            name: cmp-tmp-novault-kustomize
+          - mountPath: >-
+              /etc/kustomize/plugin/policy.open-cluster-management.io/v1/policygenerator
+            name: policy-generator
+      - command:
+          - /var/run/argocd/argocd-cmp-server
+        image: 'quay.io/eformat/argocd-vault-sidecar:2.12.3'
+        imagePullPolicy: Always
+        name: helm-novault-plugin
+        resources: {}
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
+        volumeMounts:
+          - mountPath: /var/run/argocd
+            name: var-files
+          - mountPath: /home/argocd/cmp-server/config
+            name: helm-novault-plugin
+          - mountPath: /home/argocd/cmp-server/plugins
+            name: plugins
+          - mountPath: /tmp
+            name: cmp-tmp-novault-helm
+    volumes:
+      - configMap:
+          items:
+            - key: sops-age-plugin.yaml
+              mode: 509
+              path: plugin.yaml
+          name: argocd-vault-plugins
+        name: sops-age-plugin
+      - configMap:
+          items:
+            - key: sops-age-helm-plugin.yaml
+              mode: 509
+              path: plugin.yaml
+          name: argocd-vault-plugins
+        name: sops-age-helm-plugin
+      - configMap:
+          items:
+            - key: sops-age-kustomize-plugin.yaml
+              mode: 509
+              path: plugin.yaml
+          name: argocd-vault-plugins
+        name: sops-age-kustomize-plugin
+      - configMap:
+          items:
+            - key: kustomize-novault-plugin.yaml
+              mode: 509
+              path: plugin.yaml
+          name: argocd-vault-plugins
+        name: kustomize-novault-plugin
+      - configMap:
+          items:
+            - key: helm-novault-plugin.yaml
+              mode: 509
+              path: plugin.yaml
+          name: argocd-vault-plugins
+        name: helm-novault-plugin
+      - name: sops-age-key
+        secret:
+          defaultMode: 420
+          secretName: sops-age-key
+      - emptyDir: {}
+        name: cmp-tmp-sops-age
+      - emptyDir: {}
+        name: cmp-tmp-sops-age-helm
+      - emptyDir: {}
+        name: cmp-tmp-sops-age-kustomize
+      - emptyDir: {}
+        name: cmp-tmp-novault-kustomize
+      - emptyDir: {}
+        name: cmp-tmp-novault-helm
+      - emptyDir: {}
+        name: policy-generator
+  resourceExclusions: |
+    - apiGroups:
+        - tekton.dev
+      clusters:
+        - '*'
+      kinds:
+        - TaskRun
+        - PipelineRun
+  ha:
+    enabled: false
+  tls:
+    ca: {}
+  redis: {}
+  controller:
+    env:
+      - name: ARGOCD_HARD_RECONCILIATION_TIMEOUT
+        value: "3600s"
+    processors: {}
+    sharding: {}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: cluster-manager-admin-to-argocd
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: global-policy-argocd-application-controller
+    namespace: openshift-gitops

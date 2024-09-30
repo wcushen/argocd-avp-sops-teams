@@ -1,0 +1,28 @@
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  annotations:
+    openshift.io/host.generated: "true"
+    argocd.argoproj.io/sync-wave: "1"
+  creationTimestamp: null
+  labels:
+    app: welcome
+    app.kubernetes.io/instance: welcome    
+  name: welcome
+spec:
+  host: null
+  port:
+    targetPort: 8080-tcp
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  to:
+    kind: Service
+    name: welcome
+    weight: 100
+status:
+  ingress:
+    - conditions:
+        - status: 'True'
+          type: Admitted

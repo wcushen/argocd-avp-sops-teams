@@ -1,0 +1,40 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: welcome
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+    image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"welcome:latest"},"fieldPath":"spec.template.spec.containers[?(@.name==\"welcome\")].image"}]'
+  name: welcome
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: welcome
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: welcome
+    spec:
+      containers:
+      - image: ' '
+        imagePullPolicy: Always
+        name: welcome
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
