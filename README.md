@@ -81,6 +81,7 @@ EOF
 SOPS Secret
 
 ```bash
+export SOPS_AGE_KEY_FILE=$(pwd)/secrets/age-key-a-team.txt
 export AGE_RECIPIENTS=$(grep public secrets/age-key-a-team.txt | awk '{print $4}')
 ```
 
