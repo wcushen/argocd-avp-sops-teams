@@ -2,3 +2,4 @@
 resources:
   - argocd.yaml
   - configmap.yaml
+  - serviceaccount.yaml
