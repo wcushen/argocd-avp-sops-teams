@@ -78,6 +78,26 @@ type: Opaque
 EOF
 ```
 
+SOPS Secret
+
+```bash
+export AGE_RECIPIENTS=$(grep public secrets/age-key-a-team.txt | awk '{print $4}')
+```
+
+```bash
+cat <<EOF > .sops.yaml
+creation_rules:
+  - path_regex: \.enc$
+    age: '${AGE_RECIPIENTS}'
+EOF
+```
+
+```bash
+sops --input-type yaml --output-type yaml secrets/overlay/a-team/secret.enc
+# message: Hello from the A-Team!
+```
+
+
 ```bash
 oc apply -f app-of-apps/a-team-app-of-apps.yaml
 ```
