@@ -1,0 +1,57 @@
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: argocd-vault-plugins
+data:
+  sops-age-plugin.yaml: |
+    apiVersion: argoproj.io/v1alpha1
+    kind: ConfigManagementPlugin
+    metadata:
+      name: sops-age-plugin
+    spec:
+      generate:
+        command: ["sh", "-c"]
+        args: ['AVP_TYPE=sops argocd-vault-plugin generate ./']
+  sops-age-helm-plugin.yaml: |
+    apiVersion: argoproj.io/v1alpha1
+    kind: ConfigManagementPlugin
+    metadata:
+      name: sops-age-helm-plugin
+    spec:
+      init:
+        command: [sh, -c]
+        args: ["helm dependency build"]
+      generate:
+        command: ["bash", "-c"]
+        args: ['helm template "$ARGOCD_APP_NAME" -n "$ARGOCD_APP_NAMESPACE" -f <(echo "$ARGOCD_ENV_HELM_VALUES") . | AVP_TYPE=sops argocd-vault-plugin generate -']
+  sops-age-kustomize-plugin.yaml: |
+    apiVersion: argoproj.io/v1alpha1
+    kind: ConfigManagementPlugin
+    metadata:
+      name: sops-age-kustomize-plugin
+    spec:
+      generate:
+        command: ["sh", "-c"]
+        args: ["kustomize --enable-alpha-plugins --enable-helm build . | AVP_TYPE=sops argocd-vault-plugin generate -"]
+  kustomize-novault-plugin.yaml: |
+    apiVersion: argoproj.io/v1alpha1
+    kind: ConfigManagementPlugin
+    metadata:
+      name: kustomize-novault-plugin
+    spec:
+      generate:
+        command: ["sh", "-c"]
+        args: ["kustomize --enable-alpha-plugins --enable-helm build ."]
+  helm-novault-plugin.yaml: |
+    apiVersion: argoproj.io/v1alpha1
+    kind: ConfigManagementPlugin
+    metadata:
+      name: helm-novault-plugin
+    spec:
+      init:
+        command: [sh, -c]
+        args: ["helm dependency build"]
+      generate:
+        command: ["bash", "-c"]
+        args: ['helm template "$ARGOCD_APP_NAME" -n "$ARGOCD_APP_NAMESPACE" -f <(echo "$ARGOCD_ENV_HELM_VALUES") .']

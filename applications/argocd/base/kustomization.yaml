@@ -1,3 +1,4 @@
 ---
 resources:
   - argocd.yaml
+  - configmap.yaml
