@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: welcome
+  name: welcome-kustomize-novault
   namespace: a-team
 spec:
   destination:
@@ -11,7 +11,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/eformat/argocd-avp-sops-teams.git
-    path: applications/welcome/overlay/a-team
+    path: applications/welcome/overlay/a-team/welcome-kustomize-novault
     targetRevision: main
     plugin:
       name: kustomize-novault-plugin
