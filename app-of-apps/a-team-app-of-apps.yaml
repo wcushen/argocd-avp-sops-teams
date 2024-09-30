@@ -6,7 +6,7 @@ metadata:
   namespace: a-team
 spec:
   destination:
-    namespace: open-cluster-management-global-set
+    namespace: a-team
     server: 'https://kubernetes.default.svc'
   project: default
   source:
