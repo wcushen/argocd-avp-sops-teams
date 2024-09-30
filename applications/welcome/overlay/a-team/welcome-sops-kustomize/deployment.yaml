@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: welcome-sops-kustomize
+  name: welcome
   annotations:
     avp.kubernetes.io/path: "deployment.enc"
     avp.kubernetes.io/remove-missing: "true"

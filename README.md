@@ -99,7 +99,7 @@ sops --input-type yaml --output-type yaml secrets/a-team/secret.enc
 ```
 
 ```bash
-sops --input-type yaml --output-type yaml applications/welcome/overlay/a-team/deployment.enc
+sops --input-type yaml --output-type yaml applications/welcome/overlay/a-team/welcome-sops-kustomize/deployment.enc
 # message: from the A-Team!
 ```
 
