@@ -1,0 +1,23 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: welcome-kustomize-novault
+  namespace: a-team
+spec:
+  destination:
+    namespace: a-team
+    server: 'https://kubernetes.default.svc'
+  project: default
+  source:
+    repoURL: https://github.com/eformat/argocd-avp-sops-teams.git
+    path: applications/welcome/chart
+    targetRevision: main
+    plugin:
+      name: helm-novault-plugin
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - Validate=true
