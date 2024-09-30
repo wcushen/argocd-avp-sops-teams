@@ -23,7 +23,7 @@ oc apply -f bootstrap/setup-cr.yaml
 
 ```bash
 # Add user admin to `admin` group, cluser-admin
-# Add users a-user, b-user, c-user
+# Add users a-user, b-user
 ```
 
 ## Cluster ArgoCD

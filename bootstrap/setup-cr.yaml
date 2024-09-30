@@ -20,13 +20,6 @@ metadata:
 users:
 - b-user
 ---
-apiVersion: user.openshift.io/v1
-kind: Group
-metadata:
-  name: c-team
-users:
-- c-user
----
 apiVersion: v1
 kind: ServiceAccount
 metadata:
