@@ -5,3 +5,10 @@ metadata:
   name: welcome
 spec:
   replicas: 1
+  template:
+    spec:
+      containers:
+        - name: welcome
+          command:
+            - "./hello.sh"
+            - "from Mike"
