@@ -94,10 +94,14 @@ EOF
 ```
 
 ```bash
-sops --input-type yaml --output-type yaml secrets/overlay/a-team/secret.enc
+sops --input-type yaml --output-type yaml secrets/a-team/secret.enc
 # message: Hello from the A-Team!
 ```
 
+```bash
+sops --input-type yaml --output-type yaml applications/welcome/overlay/a-team/deployment.enc
+# message: from the A-Team!
+```
 
 ```bash
 oc apply -f app-of-apps/a-team-app-of-apps.yaml
