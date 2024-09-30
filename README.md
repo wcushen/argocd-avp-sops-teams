@@ -3,6 +3,7 @@
 Prerequisites
 
 - OpenShift Cluster 4.14+
+- Download Helm, Kustomize, Age go binaries
 
 ## Bootstrap
 
