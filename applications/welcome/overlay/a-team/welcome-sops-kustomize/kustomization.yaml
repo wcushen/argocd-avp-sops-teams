@@ -23,3 +23,12 @@ patches:
         path: /metadata/name
         value: welcome-sops-kustomize
   - path: service.yaml
+
+  - target:
+      kind: Route
+      name: .*
+    patch: |-
+      - op: replace
+        path: /metadata/name
+        value: welcome-sops-kustomize
+  - path: route.yaml
