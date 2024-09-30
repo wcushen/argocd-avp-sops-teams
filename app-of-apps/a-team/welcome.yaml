@@ -3,10 +3,10 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: welcome
-  namespace: open-cluster-management-global-set
+  namespace: a-team
 spec:
   destination:
-    namespace: open-cluster-management-global-set
+    namespace: a-team
     server: 'https://kubernetes.default.svc'
   project: default
   source:

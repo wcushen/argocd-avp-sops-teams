@@ -76,3 +76,7 @@ metadata:
 type: Opaque
 EOF
 ```
+
+```bash
+oc apply -f app-of-apps/a-team-app-of-apps.yaml
+```
