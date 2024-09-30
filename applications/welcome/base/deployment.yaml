@@ -6,7 +6,6 @@ metadata:
     app: welcome
   annotations:
     argocd.argoproj.io/sync-wave: "2"
-    image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"welcome:latest"},"fieldPath":"spec.template.spec.containers[?(@.name==\"welcome\")].image"}]'
   name: welcome
 spec:
   progressDeadlineSeconds: 600
@@ -27,7 +26,7 @@ spec:
         app: welcome
     spec:
       containers:
-      - image: ' '
+      - image: quay.io/eformat/welcome:latest
         imagePullPolicy: Always
         name: welcome
         resources: {}
