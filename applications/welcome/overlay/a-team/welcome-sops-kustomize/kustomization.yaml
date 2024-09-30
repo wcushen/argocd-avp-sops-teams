@@ -14,3 +14,12 @@ patches:
         path: /metadata/name
         value: welcome-sops-kustomize
   - path: deployment.yaml
+
+  - target:
+      kind: Service
+      name: .*
+    patch: |-
+      - op: replace
+        path: /metadata/name
+        value: welcome-sops-kustomize
+  - path: service.yaml
