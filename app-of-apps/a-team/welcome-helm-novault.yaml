@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: welcome-kustomize-novault
+  name: welcome-helm-novault
   namespace: a-team
 spec:
   destination:
