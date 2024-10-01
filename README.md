@@ -109,5 +109,10 @@ sops --input-type yaml --output-type yaml applications/welcome/overlay/a-team/we
 ```
 
 ```bash
+sops --input-type yaml --output-type yaml applications/welcome/overlay/a-team/welcome-sops-helm/values/values.enc
+# message: from Helm-Sops!
+```
+
+```bash
 oc apply -f app-of-apps/a-team-app-of-apps.yaml
 ```

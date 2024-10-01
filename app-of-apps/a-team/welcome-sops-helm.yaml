@@ -1,0 +1,27 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: welcome-sops-helm
+  namespace: a-team
+spec:
+  destination:
+    namespace: a-team
+    server: 'https://kubernetes.default.svc'
+  project: default
+  source:
+    repoURL: https://github.com/eformat/argocd-avp-sops-teams.git
+    path: applications/welcome/chart
+    targetRevision: main
+    helm:
+      releaseName: welcome-sops-helm
+      valueFiles:
+        - applications/welcome/overlay/welcome-sops-helm/values.yaml
+    plugin:
+      name: helm-novault-plugin
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - Validate=true
