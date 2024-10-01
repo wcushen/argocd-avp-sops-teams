@@ -52,7 +52,7 @@ EOF
 
 ## Team ArgoCD
 
-A Team
+### A Team
 
 ```bash
 oc create -k applications/argocd/overlay/a-team
