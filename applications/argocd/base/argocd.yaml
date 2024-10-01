@@ -149,6 +149,9 @@ spec:
             name: plugins
           - mountPath: /tmp
             name: cmp-tmp-sops-age-helm
+          - mountPath: /var/run/secrets
+            name: sops-age-key
+            readOnly: true
       - command:
           - /var/run/argocd/argocd-cmp-server
         env:
@@ -181,6 +184,9 @@ spec:
           - mountPath: >-
               /etc/kustomize/plugin/policy.open-cluster-management.io/v1/policygenerator
             name: policy-generator
+          - mountPath: /var/run/secrets
+            name: sops-age-key
+            readOnly: true
       - command:
           - /var/run/argocd/argocd-cmp-server
         env:
