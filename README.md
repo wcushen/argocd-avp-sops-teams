@@ -1,31 +1,107 @@
 # argocd-avp-sops-teams
 
-Prerequisites
+Example to demonstrate multi-tenant ArgoCD for teams using SOPS secrets with applications. Various application deployment methods using yaml, helm and kustomize.
+
+![images/sre-cluster-argo-team-namespaced.png](images/sre-cluster-argo-team-namespaced.png)
+
+- The RedHat GitOps Operator (cluster scoped)
+- A Ops-SRE (cluster scoped) ArgoCD instance
+- Team (namespace scoped) ArgoCD instances
+
+We use [SOPS](https://github.com/getsops/sops), [AGE](https://github.com/FiloSottile/age) and [ArgoCD Vault Plugin](https://github.com/argoproj-labs/argocd-vault-plugin) to encrypt secret values at rest and inject them into resources.
+
+👓 Watch this [SOPS VIDEO](https://www.youtube.com/watch?v=V2PRhxphH2w) if you are new to sops. 👓
+
+## Prerequisites
 
 - OpenShift Cluster 4.14+
-- Download Helm, Kustomize, Age go binaries
+- Download Helm, Kustomize, SOPS, Age - clients
+
+```bash
+# helm
+HELM_VERSION=3.16.1
+curl -skL -o /tmp/helm.tar.gz https://get.helm.sh/helm-v${HELM_VERSION}-linux-amd64.tar.gz && \
+    tar -C /tmp -xzf /tmp/helm.tar.gz && \
+    mv -v /tmp/linux-amd64/helm /usr/local/bin && \
+    chmod -R 775 /usr/local/bin/helm && \
+    rm -rf /tmp/linux-amd64
+```
+
+```bash
+# kustomize
+KUSTOMIZE_VERSION=5.4.3
+curl -skL -o /tmp/kustomize.tar.gz https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv${KUSTOMIZE_VERSION}/kustomize_v${KUSTOMIZE_VERSION}_linux_amd64.tar.gz && \
+    tar -C /tmp -xzf /tmp/kustomize.tar.gz && \
+    mv -v /tmp/kustomize /usr/local/bin && \
+    chmod -R 775 /usr/local/bin/kustomize && \
+    rm -rf /tmp/linux-amd64
+```
+
+```bash
+# age
+AGE_VERSGION=1.2.0
+curl -skL -o /tmp/age.tar.gz https://github.com/FiloSottile/age/releases/download/v${AGE_VERSGION}/age-v${AGE_VERSGION}-linux-amd64.tar.gz && \
+    tar -C /tmp -xzf /tmp/age.tar.gz && \
+    mv -v /tmp/age/age /usr/local/bin && \
+    mv -v /tmp/age/age-keygen /usr/local/bin && \
+    chmod -R 775 /usr/local/bin/age && \
+    chmod -R 775 /usr/local/bin/age-keygen && \
+    rm -rf /tmp/age
+```
+
+```bash
+SOPS_VERSION=3.9.0
+curl -skL -o /usr/local/bin/sops https://github.com/getsops/sops/releases/download/v${SOPS_VERSION}/sops-v${SOPS_VERSION}.linux.amd64 && \
+    chmod -R 775 /usr/local/bin/sops
+```
 
 ## Bootstrap
 
-As admin user (cluster-admin)
+As admin user (cluster-admin).
 
-Install Subscriptions
+Install GitOps Subscriptions.
 
 ```bash
 oc apply -f bootstrap/setup-subs.yaml
 ```
 
-Install CR
+Install CR.
 
 ```bash
 oc apply -f bootstrap/setup-cr.yaml
 ```
 
-`FIXME` - Setup Users & Groups
+Setup users with htpassd.
 
 ```bash
-# Add user admin to `admin` group, cluser-admin
-# Add users a-user, b-user
+# create htpasswd file
+htpasswd -bBc /tmp/htpasswd admin password
+htpasswd -bB /tmp/htpasswd a-user password
+htpasswd -bB /tmp/htpasswd b-user password
+
+# set cluster-admin
+oc adm policy add-cluster-role-to-user cluster-admin admin
+
+# create htpasswd k8s secret
+oc delete secret htpasswdidp-secret -n openshift-config
+oc create secret generic htpasswdidp-secret -n openshift-config --from-file=/tmp/htpasswd
+
+# add oauth config
+cat << EOF > /tmp/htpasswd.yaml
+apiVersion: config.openshift.io/v1
+kind: OAuth
+metadata:
+  name: cluster
+spec:
+  identityProviders:
+  - name: htpasswd_provider
+    type: HTPasswd
+    htpasswd:
+      fileData:
+        name: htpasswdidp-secret
+EOF
+oc apply -f /tmp/htpasswd.yaml -n openshift-config
+watch oc get co/authentication
 ```
 
 ## Cluster ArgoCD
@@ -113,40 +189,47 @@ creation_rules:
 EOF
 ```
 
-There are x2 applications without sops for demo purposes - `welcome-helm-novault`, `welcome-kustomize-novault`
+1. There are x2 applications without sops for demo purposes. You can mount the k8s secret from sops just like normal (trivial, not shown).
 
-Mount a k8s secret with SOPS - `sops-secret-message`
+  - [`welcome-helm-novault`](app-of-apps/a-team/welcome-helm-novault.yaml)
+  - [`welcome-kustomize-novault`](app-of-apps/a-team/welcome-kustomize-novault.yaml)
+
+2. Mount a k8s secret with SOPS - [`sops-secret-message`](app-of-apps/a-team/sops-secret-message.yaml). It creates a normal k8s secret called `sops-secret-message`.
 
 ```bash
 sops --input-type yaml --output-type yaml secrets/a-team/secret.enc
 # message: Hello from the A-Team!
 ```
 
-Kustomize application secret with SOPS - `welcome-sops-kustomize`
+3. Kustomize application secret with SOPS - [`welcome-sops-kustomize`](app-of-apps/a-team/welcome-sops-kustomize.yaml). It shows how to inject a sops secret into the deployment yaml with kustomize.
 
 ```bash
 sops --input-type yaml --output-type yaml applications/welcome/overlay/a-team/welcome-sops-kustomize/deployment.enc
 # message: from Kustomize-Sops!
 ```
 
-Helm from Kustomize application secret with SOPS - `welcome-sops-kustomize-helm`
+4. Helm from Kustomize application secret with SOPS - [`welcome-sops-kustomize-helm`](app-of-apps/a-team/welcome-sops-kustomize-helm.yaml). It shows how to create a helm chart deployment from kustomize and injects a sops secret into the inline helm value.
 
 ```bash
 sops --input-type yaml --output-type yaml applications/welcome/overlay/a-team/welcome-sops-kustomize-helm/values/values.enc
 # message: from Kustomize-Helm-Sops!
 ```
 
-Helm application secret with SOPS - `welcome-sops-helm`
+5. Helm application secret with SOPS - [`welcome-sops-helm`](app-of-apps/a-team/welcome-sops-helm.yaml). It shows how to create a helm chart based application using just an argocd application and injects a sops secret into a helm value.
 
 ```bash
 sops --input-type yaml --output-type yaml applications/welcome/chart/a-team-welcome-sops-helm/values.enc
 # message: from Helm-Sops!
 ```
 
-Check these ^^ `*.enc` encoded files into git.
+Check all of the ^^ `*.enc` encoded files into git, they are AES256 encrypted using AGE.
 
 Create all A-Team Applications using app-of-apps pattern.
 
 ```bash
 oc apply -f app-of-apps/a-team-app-of-apps.yaml
 ```
+
+### B Team
+
+Rinse and repeat the a-team instructions - but for B Team 🙂
