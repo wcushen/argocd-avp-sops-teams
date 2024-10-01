@@ -14,7 +14,7 @@ spec:
     path: applications/welcome/overlay/a-team/welcome-sops-kustomize
     targetRevision: main
     plugin:
-      name: sops-age-plugin
+      name: sops-age-kustomize-plugin
   syncPolicy:
     automated:
       prune: true
