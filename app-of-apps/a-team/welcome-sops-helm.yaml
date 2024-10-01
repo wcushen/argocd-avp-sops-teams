@@ -18,7 +18,7 @@ spec:
       env:
         - name: HELM_VALUES
           value: |
-            message: <path:applications/welcome/overlay/a-team/welcome-sops-helm/values.enc#message>
+            message: <path:welcome-sops-helm/values.enc#message>
   syncPolicy:
     automated:
       prune: true
