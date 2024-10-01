@@ -18,7 +18,7 @@ spec:
       valueFiles:
         - applications/welcome/overlay/welcome-sops-helm/values.yaml
     plugin:
-      name: helm-novault-plugin
+      name: sops-age-helm-plugin
   syncPolicy:
     automated:
       prune: true
