@@ -13,10 +13,6 @@ spec:
     repoURL: https://github.com/eformat/argocd-avp-sops-teams.git
     path: applications/welcome/chart
     targetRevision: main
-    helm:
-      releaseName: welcome-sops-helm
-      valueFiles:
-        - 
     plugin:
       name: sops-age-helm-plugin
       env:
