@@ -7,7 +7,6 @@ metadata:
     app: welcome-sops-kustomize
   annotations:
     avp.kubernetes.io/path: "deployment.enc"
-    avp.kubernetes.io/remove-missing: "true"
 spec:
   replicas: 1
   selector:
