@@ -109,7 +109,7 @@ sops --input-type yaml --output-type yaml applications/welcome/overlay/a-team/we
 ```
 
 ```bash
-sops --input-type yaml --output-type yaml applications/welcome/overlay/a-team/welcome-sops-helm/values/values.enc
+sops --input-type yaml --output-type yaml applications/welcome/chart/a-team-welcome-sops-helm/values.enc
 # message: from Helm-Sops!
 ```
 
