@@ -50,6 +50,7 @@ curl -skL -o /tmp/age.tar.gz https://github.com/FiloSottile/age/releases/downloa
 ```
 
 ```bash
+# sops
 SOPS_VERSION=3.9.0
 curl -skL -o /usr/local/bin/sops https://github.com/getsops/sops/releases/download/v${SOPS_VERSION}/sops-v${SOPS_VERSION}.linux.amd64 && \
     chmod -R 775 /usr/local/bin/sops
