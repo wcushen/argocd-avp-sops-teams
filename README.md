@@ -107,7 +107,7 @@ watch oc get co/authentication
 
 ## Cluster ArgoCD
 
-As admin user (cluster-admin)
+As `admin` user (cluster-admin)
 
 ## SOPS key setup
 
@@ -135,11 +135,11 @@ type: Opaque
 EOF
 ```
 
-`FIXME` - Deploy cluster priv-apps
+`FIXME` - Deploy cluster priv-apps into this ArgoCD.
 
 ## Team ArgoCD
 
-As a-user user (part of a-team group). A Normal User.
+As `a-user` user (part of `a-team` group). A Normal User.
 
 ### A Team
 
