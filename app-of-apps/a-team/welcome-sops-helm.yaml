@@ -16,9 +16,13 @@ spec:
     helm:
       releaseName: welcome-sops-helm
       valueFiles:
-        - applications/welcome/overlay/welcome-sops-helm/values.yaml
+        - 
     plugin:
       name: sops-age-helm-plugin
+      env:
+        - name: HELM_VALUES
+          value: |
+            message: <path:applications/welcome/overlay/a-team/welcome-sops-helm/values.enc#message>
   syncPolicy:
     automated:
       prune: true
