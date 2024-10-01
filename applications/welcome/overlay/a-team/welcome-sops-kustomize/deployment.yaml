@@ -6,7 +6,7 @@ metadata:
   labels:
     app: welcome-sops-kustomize
   annotations:
-    avp.kubernetes.io/path: "deployment.enc"
+    avp.kubernetes.io/path: "applications/welcome/overlay/a-team/welcome-sops-kustomize/deployment.enc"
 spec:
   replicas: 1
   selector:
