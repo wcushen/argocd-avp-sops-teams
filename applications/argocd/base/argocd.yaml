@@ -127,6 +127,9 @@ spec:
             readOnly: true
       - command:
           - /var/run/argocd/argocd-cmp-server
+        env:
+          - name: SOPS_AGE_KEY_FILE
+            value: /var/run/secrets/age-key.txt
         image: 'quay.io/eformat/argocd-vault-sidecar:2.12.3'
         imagePullPolicy: Always
         name: sops-age-helm-plugin
@@ -155,6 +158,8 @@ spec:
       - command:
           - /var/run/argocd/argocd-cmp-server
         env:
+          - name: SOPS_AGE_KEY_FILE
+            value: /var/run/secrets/age-key.txt
           - name: KUSTOMIZE_PLUGIN_HOME
             value: /etc/kustomize/plugin
           - name: POLICY_GEN_ENABLE_HELM

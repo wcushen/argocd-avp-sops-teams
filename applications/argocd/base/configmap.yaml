@@ -33,7 +33,7 @@ data:
     spec:
       generate:
         command: ["sh", "-c"]
-        args: ["kustomize --enable-alpha-plugins --enable-helm build . | AVP_TYPE=sops argocd-vault-plugin generate -"]
+        args: ["kustomize --enable-alpha-plugins . | AVP_TYPE=sops argocd-vault-plugin generate -"]
   kustomize-novault-plugin.yaml: |
     apiVersion: argoproj.io/v1alpha1
     kind: ConfigManagementPlugin
@@ -42,7 +42,7 @@ data:
     spec:
       generate:
         command: ["sh", "-c"]
-        args: ["kustomize --enable-alpha-plugins --enable-helm build ."]
+        args: ["kustomize --enable-alpha-plugins build ."]
   helm-novault-plugin.yaml: |
     apiVersion: argoproj.io/v1alpha1
     kind: ConfigManagementPlugin

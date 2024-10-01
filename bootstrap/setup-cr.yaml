@@ -87,7 +87,7 @@ data:
     spec:
       generate:
         command: ["sh", "-c"]
-        args: ["kustomize --enable-alpha-plugins --enable-helm build . | AVP_TYPE=sops argocd-vault-plugin generate -"]
+        args: ["kustomize --enable-alpha-plugins build . | AVP_TYPE=sops argocd-vault-plugin generate -"]
   kustomize-novault-plugin.yaml: |
     apiVersion: argoproj.io/v1alpha1
     kind: ConfigManagementPlugin
@@ -96,7 +96,7 @@ data:
     spec:
       generate:
         command: ["sh", "-c"]
-        args: ["kustomize --enable-alpha-plugins --enable-helm build ."]
+        args: ["kustomize --enable-alpha-plugins build ."]
   helm-novault-plugin.yaml: |
     apiVersion: argoproj.io/v1alpha1
     kind: ConfigManagementPlugin
@@ -239,6 +239,9 @@ spec:
             readOnly: true
       - command:
           - /var/run/argocd/argocd-cmp-server
+        env:
+          - name: SOPS_AGE_KEY_FILE
+            value: /var/run/secrets/age-key.txt
         image: 'quay.io/eformat/argocd-vault-sidecar:2.12.3'
         imagePullPolicy: Always
         name: sops-age-helm-plugin
@@ -267,6 +270,8 @@ spec:
       - command:
           - /var/run/argocd/argocd-cmp-server
         env:
+          - name: SOPS_AGE_KEY_FILE
+            value: /var/run/secrets/age-key.txt
           - name: KUSTOMIZE_PLUGIN_HOME
             value: /etc/kustomize/plugin
           - name: POLICY_GEN_ENABLE_HELM
