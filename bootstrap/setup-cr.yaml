@@ -270,7 +270,7 @@ spec:
             value: "true"
         image: 'quay.io/eformat/argocd-vault-sidecar:2.12.3'
         imagePullPolicy: Always
-        name: sops-age-vault-plugin-kustomize
+        name: sops-age-kustomize-plugin
         resources: {}
         securityContext:
           allowPrivilegeEscalation: false
