@@ -104,5 +104,10 @@ sops --input-type yaml --output-type yaml applications/welcome/overlay/a-team/we
 ```
 
 ```bash
+sops --input-type yaml --output-type yaml applications/welcome/overlay/a-team/welcome-sops-kustomize-helm/values/values.enc
+# message: from Kustomize-Helm!
+```
+
+```bash
 oc apply -f app-of-apps/a-team-app-of-apps.yaml
 ```

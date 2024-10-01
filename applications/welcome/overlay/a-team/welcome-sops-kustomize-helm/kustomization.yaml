@@ -7,5 +7,5 @@ helmCharts:
     version: 0.0.1
     releaseName: welcome-sops-kustomize-helm
     repo:  # we expand chart in folder as we have no helm chart repo
-#    valuesInline:
-#      replicaCount: 2
+    valuesInline:
+      message: <path:values/values.enc#message>
