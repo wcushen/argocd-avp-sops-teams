@@ -269,7 +269,7 @@ Hello from Bob ! Welcome to OpenShift from welcome-7685d4794b-v9z88:10.128.0.137
 Hello World ! Welcome to OpenShift from welcome-helm-novault-5fcb9d7ff4-4pdrk:10.128.0.78
 Hello from Helm-Sops! ! Welcome to OpenShift from welcome-sops-helm-796dfd845b-7qrjm:10.128.0.193
 Hello from Kustomize-Sops! ! Welcome to OpenShift from welcome-sops-kustomize-64d4585c6c-x9f4w:10.128.0.158
-Hello from Kustomize-Helm! ! Welcome to OpenShift from welcome-sops-kustomize-helm-59d5dbf4b6-tdwss:10.128.0.125
+Hello from Kustomize-Helm-Sops! ! Welcome to OpenShift from welcome-sops-kustomize-helm-59d5dbf4b6-tdwss:10.128.0.125
 ```
 
 ### B Team
