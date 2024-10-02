@@ -200,8 +200,8 @@ Create secrets, check then into git, deploy apps with ArgoCD.
 
 1. There are x2 applications without sops for demo purposes. You can mount the k8s secret from sops just like normal (trivial, not shown).
 
-  - [`welcome-helm-novault`](app-of-apps/a-team/welcome-helm-novault.yaml)
-  - [`welcome-kustomize-novault`](app-of-apps/a-team/welcome-kustomize-novault.yaml)
+- [`welcome-helm-novault`](app-of-apps/a-team/welcome-helm-novault.yaml)
+- [`welcome-kustomize-novault`](app-of-apps/a-team/welcome-kustomize-novault.yaml)
 
 2. Mount a k8s secret with SOPS - [`sops-secret-message`](app-of-apps/a-team/sops-secret-message.yaml). It creates a normal k8s secret called `sops-secret-message`.
 
@@ -227,7 +227,7 @@ sops --input-type yaml --output-type yaml applications/welcome/overlay/a-team/we
 5. Helm application secret with SOPS - [`welcome-sops-helm`](app-of-apps/a-team/welcome-sops-helm.yaml). It shows how to create a helm chart based application using just an argocd application and injects a sops secret into a helm value.
 
 ```bash
-sops --input-type yaml --output-type yaml applications/welcome/chart/a-team-welcome-sops-helm/values.enc
+sops --input-type yaml --output-type yaml applications/welcome/chart/a-team/welcome-sops-helm/values.enc
 # message: from Helm-Sops!
 ```
 

@@ -18,7 +18,7 @@ spec:
       env:
         - name: HELM_VALUES
           value: |
-            message: <path:b-team-welcome-sops-helm/values.enc#message>
+            message: <path:b-team/values.enc#message>
   syncPolicy:
     automated:
       prune: true
