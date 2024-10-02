@@ -227,7 +227,7 @@ sops --input-type yaml --output-type yaml applications/welcome/overlay/a-team/we
 5. Helm application secret with SOPS - [`welcome-sops-helm`](app-of-apps/a-team/welcome-sops-helm.yaml). It shows how to create a helm chart based application using just an argocd application and injects a sops secret into a helm value.
 
 ```bash
-sops --input-type yaml --output-type yaml applications/welcome/chart/a-team/welcome-sops-helm/values.enc
+sops --input-type yaml --output-type yaml applications/welcome/chart/a-team/values.enc
 # message: from Helm-Sops!
 ```
 
