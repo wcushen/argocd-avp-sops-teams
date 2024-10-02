@@ -187,7 +187,7 @@ export AGE_RECIPIENTS=$(grep public secrets/age-key-a-team.txt | awk '{print $4}
 Top level config to help with encoding SOPS secrets.
 
 ```bash
-cat <<'EOF' > .sops.yaml
+cat <<EOF > .sops.yaml
 creation_rules:
   - path_regex: .*/a-team/.*\.enc$
     age: '${AGE_RECIPIENTS}'

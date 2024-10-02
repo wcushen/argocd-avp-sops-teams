@@ -1,3 +1,5 @@
 creation_rules:
   - path_regex: .*/a-team/.*\.enc$
     age: 'age1p5v2v3c9tz6crz7dm52yaw5wrzlp0eaxd30dfdy8f3ff60gn0essjg2qq8'
+  - path_regex: .*/b-team/.*\.enc$
+    age: 'age1ssyf2jehx76nntnvmv9gec4u6gpvmsux9myvm668qqg65x8lxe3sl68yrp'
