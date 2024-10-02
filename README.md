@@ -245,21 +245,22 @@ A Team test the urls.
 
 ```bash
 export BASE_DOMAIN=$(oc get dns cluster -o jsonpath='{.spec.baseDomain}')
+export TEAM_NAME=a-team
 
 # welcome
-curl -s https://welcome-a-team.apps.${BASE_DOMAIN}
+curl -s https://welcome-${TEAM_NAME}.apps.${BASE_DOMAIN}
 
 # welcome-helm-novault
-curl -s https://welcome-helm-novault-a-team.apps.${BASE_DOMAIN}
+curl -s https://welcome-helm-novault-${TEAM_NAME}.apps.${BASE_DOMAIN}
 
 # welcome-sops-helm
-curl -s https://welcome-sops-helm-a-team.apps.${BASE_DOMAIN}
+curl -s https://welcome-sops-helm-${TEAM_NAME}.apps.${BASE_DOMAIN}
 
 # welcome-sops-kustomize
-curl -s https://welcome-sops-kustomize-a-team.apps.${BASE_DOMAIN}
+curl -s https://welcome-sops-kustomize-${TEAM_NAME}.apps.${BASE_DOMAIN}
 
 # welcome-sops-kustomize-helm
-curl -s https://welcome-sops-kustomize-helm-a-team.apps.${BASE_DOMAIN}
+curl -s https://welcome-sops-kustomize-helm-${TEAM_NAME}.apps.${BASE_DOMAIN}
 ```
 
 Should result in something like this (the `message` sops secret is in the Hello!).
@@ -274,4 +275,4 @@ Hello from Kustomize-Helm-Sops! ! Welcome to OpenShift from welcome-sops-kustomi
 
 ### B Team
 
-Rinse and repeat the a-team instructions - but for B Team with the `b-user` 🙂
+Rinse and repeat the a-team instructions - but for B Team with the `b-user` and `b-team` 🙂
