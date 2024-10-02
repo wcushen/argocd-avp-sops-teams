@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: b-team-app-of-apps
+  name: welcome-sops-kustomize
   namespace: b-team
 spec:
   destination:
@@ -10,13 +10,14 @@ spec:
     server: 'https://kubernetes.default.svc'
   project: default
   source:
-    path: app-of-apps/b-team
-    directory:
-      include: "*.yaml"
     repoURL: https://github.com/eformat/argocd-avp-sops-teams.git
+    path: applications/welcome/overlay/b-team/welcome-sops-kustomize
     targetRevision: main
+    plugin:
+      name: sops-age-kustomize-plugin
   syncPolicy:
     automated:
+      prune: true
       selfHeal: true
     syncOptions:
       - Validate=true

@@ -1,0 +1,11 @@
+---
+helmCharts:
+  - name: welcome
+    namespace: b-team
+    includeCRDs: false
+    valuesFile: values/values.yaml
+    version: 0.0.1
+    releaseName: welcome-sops-kustomize-helm
+    repo:  # we expand chart in folder as we have no helm chart repo
+    valuesInline:
+      message: <path:values/values.enc#message>

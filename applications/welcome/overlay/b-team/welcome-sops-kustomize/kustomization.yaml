@@ -1,0 +1,34 @@
+namespace: b-team
+
+resources:
+  - ../../../base
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+patches:
+  - target:
+      kind: Deployment
+      name: .*
+    patch: |-
+      - op: replace
+        path: /metadata/name
+        value: welcome-sops-kustomize
+  - path: deployment.yaml
+
+  - target:
+      kind: Service
+      name: .*
+    patch: |-
+      - op: replace
+        path: /metadata/name
+        value: welcome-sops-kustomize
+  - path: service.yaml
+
+  - target:
+      kind: Route
+      name: .*
+    patch: |-
+      - op: replace
+        path: /metadata/name
+        value: welcome-sops-kustomize
+  - path: route.yaml

@@ -1,0 +1,24 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: welcome
+  labels:
+    app: welcome-sops-kustomize
+  annotations:
+    avp.kubernetes.io/path: "deployment.enc"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: welcome-sops-kustomize
+  template:
+    spec:
+      containers:
+        - name: welcome
+          command:
+            - "./hello.sh"
+            - "<message>"
+    metadata:
+      labels:
+        app: welcome-sops-kustomize

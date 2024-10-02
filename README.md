@@ -143,6 +143,8 @@ As `a-user` user (part of `a-team` group). A Normal User.
 
 ### A Team
 
+#### Setup
+
 Create tenant ArgoCD for A Team
 
 ```bash
@@ -183,12 +185,16 @@ export AGE_RECIPIENTS=$(grep public secrets/age-key-a-team.txt | awk '{print $4}
 Top level config to help with encoding SOPS secrets.
 
 ```bash
-cat <<EOF > .sops.yaml
+cat <<'EOF' > .sops.yaml
 creation_rules:
-  - path_regex: \.enc$
+  - path_regex: .*/a-team/.*\.enc$
     age: '${AGE_RECIPIENTS}'
 EOF
 ```
+
+#### Apps
+
+Create secrets, check then into git, deploy apps with ArgoCD.
 
 1. There are x2 applications without sops for demo purposes. You can mount the k8s secret from sops just like normal (trivial, not shown).
 
@@ -231,6 +237,39 @@ Create all A-Team Applications using app-of-apps pattern.
 oc apply -f app-of-apps/a-team-app-of-apps.yaml
 ```
 
+#### Testing
+
+A Team test the urls.
+
+```bash
+export BASE_DOMAIN=$(oc get dns cluster -o jsonpath='{.spec.baseDomain}')
+
+# welcome
+curl -s https://welcome-a-team.apps.${BASE_DOMAIN}
+
+# welcome-helm-novault
+curl -s https://welcome-helm-novault-a-team.apps.${BASE_DOMAIN}
+
+# welcome-sops-helm
+curl -s https://welcome-sops-helm-a-team.apps.${BASE_DOMAIN}
+
+# welcome-sops-kustomize
+curl -s https://welcome-sops-kustomize-a-team.apps.${BASE_DOMAIN}
+
+# welcome-sops-kustomize-helm
+curl -s https://welcome-sops-kustomize-helm-a-team.apps.${BASE_DOMAIN}
+```
+
+Should result in something like this (the `message` sops secret is in the Hello!).
+
+```bash
+Hello from Bob ! Welcome to OpenShift from welcome-7685d4794b-v9z88:10.128.0.137
+Hello World ! Welcome to OpenShift from welcome-helm-novault-5fcb9d7ff4-4pdrk:10.128.0.78
+Hello from Helm-Sops! ! Welcome to OpenShift from welcome-sops-helm-796dfd845b-7qrjm:10.128.0.193
+Hello from Kustomize-Sops! ! Welcome to OpenShift from welcome-sops-kustomize-64d4585c6c-x9f4w:10.128.0.158
+Hello from Kustomize-Helm! ! Welcome to OpenShift from welcome-sops-kustomize-helm-59d5dbf4b6-tdwss:10.128.0.125
+```
+
 ### B Team
 
-Rinse and repeat the a-team instructions - but for B Team 🙂
+Rinse and repeat the a-team instructions - but for B Team with the `b-user` 🙂
