@@ -56,6 +56,8 @@ curl -skL -o /usr/local/bin/sops https://github.com/getsops/sops/releases/downlo
     chmod -R 775 /usr/local/bin/sops
 ```
 
+Clone or fork this repo and cd into it.
+
 ## Bootstrap
 
 As admin user (cluster-admin).

@@ -1,5 +1,5 @@
 ---
-namespace: a-team
+namespace: b-team
 
 resources:
   - ../../base
