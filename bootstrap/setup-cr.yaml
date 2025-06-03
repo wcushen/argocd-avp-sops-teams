@@ -147,7 +147,6 @@ spec:
     route:
       enabled: false
   initialSSHKnownHosts: {}
-  kustomizeBuildOptions: --enable-alpha-plugins
   sso:
     dex:
       openShiftOAuth: true
